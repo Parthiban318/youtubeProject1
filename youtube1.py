@@ -19,6 +19,8 @@ channel_id = 'UCuI5XcJYynHa5k_lqDzAgwQ'
 
 youtube = build(api_service_name, api_version, developerKey=api_key)
 
+##Function to get channels details:
+
 request = youtube.channels().list(
     part="snippet,contentDetails,statistics",
     id=channel_id
@@ -26,7 +28,26 @@ request = youtube.channels().list(
 response = request.execute()
 
 
-# Channels Details Functions:
+channel_id = response['items'][0]["id"]
+channel_name = response['items'][0]['snippet']['title']
+channel_description = response['items'][0]['snippet']['description']
+channel_pat = response['items'][0]['snippet']['publishedAt']
+channel_playlist = response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+channel_scount = response['items'][0]['statistics']['subscriberCount']
+channel_vcount = response['items'][0]['statistics']['videoCount']
+channel_viewCount = response['items'][0]['statistics']['viewCount']
+
+d = {
+     'channel_id' :channel_id,
+     'channel_name':channel_name,
+     'channel_id' :channel_id,
+     'channel_des':channel_description,
+     'p@t' : channel_pat,
+     'playlist' : channel_playlist,
+     'subcount' : channel_scount,
+     'vc' : channel_vcount,
+     'viewCount' : channel_viewCount
+}
 
 
 def get_channel_details(channel_id):
@@ -59,6 +80,17 @@ def get_channel_details(channel_id):
         'viewCount': channel_viewCount
     }
     return d
+
+channel_1 = get_channel_details('UCuI5XcJYynHa5k_lqDzAgwQ')
+channel_2 = get_channel_details('UCNIy6zQyP7SuLEIaiwymfUA')
+channel_3 = get_channel_details('UC36qgdaYNkwCgjKjgiCqxeA')
+channel_4 = get_channel_details('UCBF5i6PogoMwnoAP0LFiCmQ')
+channel_5 = get_channel_details('UC9kKt-14c3tjGJSO_jwPHnA')
+channel_6 = get_channel_details('UClfOtvtVrQA9Msxef0s34jQ')
+channel_7 = get_channel_details('UCTMJmZHXDyHrMtilKaN9J4w')
+channel_8 = get_channel_details('UC0GDHStEIx9n4FqUiDkxiRg')
+channel_9 = get_channel_details('UCjZC9-Ym0UNMxqgcDX4Q0dg')
+channel_10 = get_channel_details('UC5fcjujOsqD-126Chn_BAuA')
 
 
 # Video Id's Details Functions:
@@ -99,6 +131,8 @@ def get_video_ids(youtube, playlist_id):
 
     return video_ids
 
+video_ids = get_video_ids(youtube, playlist_id)
+
 
 # Video Details Functions:
 
@@ -123,6 +157,36 @@ def get_video_ids(youtube, video_ids):
             all_video_stats.append(video_stats)
 
     return all_video_stats
+
+video_details = get_video_ids(youtube, video_ids)
+
+video_data = pd.DataFrame(video_details)
+
+video_data['published_date'] = pd.to_datetime(video_data['Published_date']).dt.date
+video_data['Views'] = pd.to_numeric(video_data['Views'])
+video_data['Likes'] = pd.to_numeric(video_data['Likes'])
+video_data['Comments'] = pd.to_numeric(video_data['Comments'])
+
+df1 = video_data
+
+top10_videos = video_data.sort_values(by='Views', ascending=False).head(10)
+
+ax1 = sns.barplot(x='Views', y='Title', data=top10_videos)
+
+video_data['Month'] = pd.to_datetime(video_data['published_date']).dt.strftime('%b')
+
+video_per_month = video_data.groupby('Month', as_index=False).size()
+
+sort_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+video_per_month.index = pd.CategoricalIndex(video_per_month['Month'], categories=sort_order, ordered=True)
+
+video_per_month = video_per_month.sort_index()
+
+ax2 = sns.barplot(x='Month', y='size', data=video_per_month)
+
+video_data.to_csv('Video_Details(Traveling Tamizhan).csv')
 
 
 # Comments Details Functions:
@@ -151,6 +215,12 @@ def get_comment_info(video_ids):
     except:
         pass
     return comment_data
+
+comment_details=get_comment_info(video_ids)
+
+comment_data = pd.DataFrame(comment_details)
+
+comment_data.to_csv('comment_Details.csv')
 
 
 # Mongodb Connection:
