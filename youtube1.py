@@ -95,6 +95,8 @@ channel_10 = get_channel_details('UC5fcjujOsqD-126Chn_BAuA')
 
 # Video Id's Details Functions:
 
+playlist_id="UUTMJmZHXDyHrMtilKaN9J4w"
+
 
 def get_video_ids(youtube, playlist_id):
     request = youtube.playlistItems().list(
