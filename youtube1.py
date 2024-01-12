@@ -397,7 +397,7 @@ def tables():
     return "Tables Created Successfully"
 
 
-# DataFrame functions:
+# DataFrame functions in streamlit:
 
 
 def show_channels_tables():
