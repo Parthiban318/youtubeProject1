@@ -164,30 +164,6 @@ video_details = get_video_ids(youtube, video_ids)
 
 video_data = pd.DataFrame(video_details)
 
-video_data['published_date'] = pd.to_datetime(video_data['Published_date']).dt.date
-video_data['Views'] = pd.to_numeric(video_data['Views'])
-video_data['Likes'] = pd.to_numeric(video_data['Likes'])
-video_data['Comments'] = pd.to_numeric(video_data['Comments'])
-
-df1 = video_data
-
-top10_videos = video_data.sort_values(by='Views', ascending=False).head(10)
-
-ax1 = sns.barplot(x='Views', y='Title', data=top10_videos)
-
-video_data['Month'] = pd.to_datetime(video_data['published_date']).dt.strftime('%b')
-
-video_per_month = video_data.groupby('Month', as_index=False).size()
-
-sort_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-video_per_month.index = pd.CategoricalIndex(video_per_month['Month'], categories=sort_order, ordered=True)
-
-video_per_month = video_per_month.sort_index()
-
-ax2 = sns.barplot(x='Month', y='size', data=video_per_month)
-
 video_data.to_csv('Video_Details(Traveling Tamizhan).csv')
 
 
