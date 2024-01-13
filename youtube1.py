@@ -17,16 +17,16 @@ channel_id = 'UCuI5XcJYynHa5k_lqDzAgwQ'
 
 youtube = build(api_service_name, api_version, developerKey=api_key)
 
+
 ##Function to get channels details:
 
 def get_channel_details(channel_id):
-    
     request = youtube.channels().list(
         part="snippet,contentDetails,statistics",
         id=channel_id
     )
     response = request.execute()
-    
+
     channel_id = response['items'][0]["id"]
     channel_name = response['items'][0]['snippet']['title']
     channel_description = response['items'][0]['snippet']['description']
@@ -48,6 +48,7 @@ def get_channel_details(channel_id):
     }
     return d
 
+
 channel_1 = get_channel_details('UCuI5XcJYynHa5k_lqDzAgwQ')
 channel_2 = get_channel_details('UCNIy6zQyP7SuLEIaiwymfUA')
 channel_3 = get_channel_details('UC36qgdaYNkwCgjKjgiCqxeA')
@@ -59,10 +60,9 @@ channel_8 = get_channel_details('UC0GDHStEIx9n4FqUiDkxiRg')
 channel_9 = get_channel_details('UCjZC9-Ym0UNMxqgcDX4Q0dg')
 channel_10 = get_channel_details('UC5fcjujOsqD-126Chn_BAuA')
 
-
 # Video Id's Details Functions:
 
-playlist_id="UUTMJmZHXDyHrMtilKaN9J4w"
+playlist_id = "UUTMJmZHXDyHrMtilKaN9J4w"
 
 
 def get_video_ids(youtube, playlist_id):
@@ -100,6 +100,7 @@ def get_video_ids(youtube, playlist_id):
 
     return video_ids
 
+
 video_ids = get_video_ids(youtube, playlist_id)
 
 
@@ -126,6 +127,7 @@ def get_video_ids(youtube, video_ids):
             all_video_stats.append(video_stats)
 
     return all_video_stats
+
 
 video_details = get_video_ids(youtube, video_ids)
 
@@ -161,12 +163,12 @@ def get_comment_info(video_ids):
         pass
     return comment_data
 
-comment_details=get_comment_info(video_ids)
+
+comment_details = get_comment_info(video_ids)
 
 comment_data = pd.DataFrame(comment_details)
 
 comment_data.to_csv('comment_Details.csv')
-
 
 # Mongodb Connection:
 
@@ -404,17 +406,12 @@ def show_comments_table():
 
 # Streamlit coding:
 
+st.title(":red[YOUTUBE DATA HAVERSTING]")
 
-with st.sidebar:
-    st.title(":red[YOUTUBE DATA HAVERSTING AND WAREHOUSING]")
-    st.header("Related topics")
-    st.caption("Python Scripting")
-    st.caption("Data Collection")
-    st.caption("MongoDB")
-    st.caption("API Intergration")
-    st.caption("Data Management using MongoDB and SQL")
+st.caption("channels details")
 
 Channel_id = st.text_input("Enter the Youtube channel ID")
+
 
 if st.button("collect and store data in MongoDB"):
     ch_ids = []
@@ -433,6 +430,7 @@ if st.button("collect and store data in MongoDB"):
 if st.button("Migrate to sql"):
     Table = tables()
     st.success(Table)
+
 
 show_table = st.radio("SELECT THE TABLE FOR VIEW", ("CHANNELS", "VIDEOS", "COMMENTS"))
 
@@ -560,4 +558,3 @@ elif question == "10. Videos with highest number comments":
     t10 = cursor.fetchall()
     df10 = pd.DataFrame(t10, columns=["videotitle", "channelname", "comments"])
     st.write(df10)
-
