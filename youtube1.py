@@ -4,9 +4,7 @@
 from googleapiclient.discovery import build
 import psycopg2
 import pymongo
-import json
 import pandas as pd
-import seaborn as sns
 import streamlit as st
 
 # API Functions:
@@ -21,45 +19,14 @@ youtube = build(api_service_name, api_version, developerKey=api_key)
 
 ##Function to get channels details:
 
-request = youtube.channels().list(
-    part="snippet,contentDetails,statistics",
-    id=channel_id
-)
-response = request.execute()
-
-
-channel_id = response['items'][0]["id"]
-channel_name = response['items'][0]['snippet']['title']
-channel_description = response['items'][0]['snippet']['description']
-channel_pat = response['items'][0]['snippet']['publishedAt']
-channel_playlist = response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
-channel_scount = response['items'][0]['statistics']['subscriberCount']
-channel_vcount = response['items'][0]['statistics']['videoCount']
-channel_viewCount = response['items'][0]['statistics']['viewCount']
-
-d = {
-     'channel_id' :channel_id,
-     'channel_name':channel_name,
-     'channel_id' :channel_id,
-     'channel_des':channel_description,
-     'p@t' : channel_pat,
-     'playlist' : channel_playlist,
-     'subcount' : channel_scount,
-     'vc' : channel_vcount,
-     'viewCount' : channel_viewCount
-}
-
-
 def get_channel_details(channel_id):
-    api_service_name = "youtube"
-    api_version = "v3"
-    api_key = "AIzaSyBMZt23aK8wKCQ9_8Z0iCCF80Vt3a2F6SU"
-    youtube = build(api_service_name, api_version, developerKey=api_key)
+    
     request = youtube.channels().list(
         part="snippet,contentDetails,statistics",
         id=channel_id
     )
     response = request.execute()
+    
     channel_id = response['items'][0]["id"]
     channel_name = response['items'][0]['snippet']['title']
     channel_description = response['items'][0]['snippet']['description']
