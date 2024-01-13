@@ -407,16 +407,16 @@ def show_comments_table():
 
 with st.sidebar:
     st.title(":red[YOUTUBE DATA HAVERSTING AND WAREHOUSING]")
-    st.header("Skill Take Away")
+    st.header("Related topics")
     st.caption("Python Scripting")
     st.caption("Data Collection")
     st.caption("MongoDB")
     st.caption("API Intergration")
     st.caption("Data Management using MongoDB and SQL")
 
-Channel_id = st.text_input("Enter the channel ID")
+Channel_id = st.text_input("Enter the Youtube channel ID")
 
-if st.button("collect and store data"):
+if st.button("collect and store data in MongoDB"):
     ch_ids = []
     db = client["Youtube_data"]
     coll1 = db["channel_details"]
