@@ -199,7 +199,7 @@ def channel_info(channel_id):
     return "upload completed successfully"
 
 
-# Table create functions:
+# Table create functions in postgre SQL:
 
 
 def channels_table():
