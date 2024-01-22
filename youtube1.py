@@ -1,11 +1,15 @@
 # All Packages:
-
-
+import cursor
+from PIL._imaging import display
 from googleapiclient.discovery import build
 import psycopg2
 import pymongo
 import pandas as pd
 import streamlit as st
+from plotly.graph_objs.box import selected
+import plotly.express as px
+from streamlit_option_menu import option_menu
+from PIL import Image
 
 # API Functions:
 
@@ -16,6 +20,9 @@ api_key = "AIzaSyAvNB4_ac_fPg5uHroI2-VUfzRgBtyVTG8"
 channel_id = 'UCuI5XcJYynHa5k_lqDzAgwQ'
 
 youtube = build(api_service_name, api_version, developerKey=api_key)
+
+client = pymongo.MongoClient("mongodb+srv://pvasudwvan:pvasudwvan@cluster0.m0kpwkl.mongodb.net/?retryWrites=true&w=majority")
+db = client["Youtube_data"]
 
 
 ##Function to get channels details:
@@ -48,7 +55,6 @@ def get_channel_details(channel_id):
     }
     return d
 
-
 channel_1 = get_channel_details('UCuI5XcJYynHa5k_lqDzAgwQ')
 channel_2 = get_channel_details('UCNIy6zQyP7SuLEIaiwymfUA')
 channel_3 = get_channel_details('UC36qgdaYNkwCgjKjgiCqxeA')
@@ -60,10 +66,10 @@ channel_8 = get_channel_details('UC0GDHStEIx9n4FqUiDkxiRg')
 channel_9 = get_channel_details('UCjZC9-Ym0UNMxqgcDX4Q0dg')
 channel_10 = get_channel_details('UC5fcjujOsqD-126Chn_BAuA')
 
+
 # Video Id's Details Functions:
 
-playlist_id = "UUTMJmZHXDyHrMtilKaN9J4w"
-
+playlist_id = 'UUTMJmZHXDyHrMtilKaN9J4w'
 
 def get_video_ids(youtube, playlist_id):
     request = youtube.playlistItems().list(
@@ -100,8 +106,11 @@ def get_video_ids(youtube, playlist_id):
 
     return video_ids
 
+get_video_ids(youtube, playlist_id)
 
 video_ids = get_video_ids(youtube, playlist_id)
+
+
 
 
 # Video Details Functions:
@@ -128,12 +137,9 @@ def get_video_ids(youtube, video_ids):
 
     return all_video_stats
 
-
 video_details = get_video_ids(youtube, video_ids)
 
 video_data = pd.DataFrame(video_details)
-
-video_data.to_csv('Video_Details(Traveling Tamizhan).csv')
 
 
 # Comments Details Functions:
@@ -163,25 +169,16 @@ def get_comment_info(video_ids):
         pass
     return comment_data
 
-
-comment_details = get_comment_info(video_ids)
-
-comment_data = pd.DataFrame(comment_details)
-
-comment_data.to_csv('comment_Details.csv')
-
 # Mongodb Connection:
 
 
-client = pymongo.MongoClient(
-    "mongodb+srv://pvasudwvan:pvasudwvan@cluster0.m0kpwkl.mongodb.net/?retryWrites=true&w=majority")
-db = client["Youtube_data"]
+
 
 
 # Mongodb functions:
 
 
-def channel_info(channel_id):
+def channel_details(channel_id):
     ch_details = get_channel_details(channel_id)
     vi_ids = get_video_ids(youtube, playlist_id)
     vi_details = get_video_ids(youtube, video_ids)
@@ -190,11 +187,11 @@ def channel_info(channel_id):
     coll1 = db["channel_details"]
     coll1.insert_one({"channel_information": ch_details})
 
-    coll1 = db["video_details"]
-    coll1.insert_one({"video information": vi_details})
+    coll2 = db["video_details"]
+    coll2.insert_one({"video information": vi_details})
 
-    coll1 = db["comment_details"]
-    coll1.insert_one({"comment information": com_details})
+    coll3 = db["comment_details"]
+    coll3.insert_one({"comment information": com_details})
 
     return "upload completed successfully"
 
@@ -280,8 +277,8 @@ def videos_table():
 
     vi_list = []
     db = client["Youtube_data"]
-    coll1 = db["video_details"]
-    for vi_data in coll1.find({}, {"_id": 0, "video information": 1}):
+    coll2 = db["video_details"]
+    for vi_data in coll2.find({}, {"_id": 0, "video information": 1}):
         for i in range(len(vi_data["video information"])):
             vi_list.append(vi_data["video information"][i])
     dfm1 = pd.DataFrame(vi_list)
@@ -330,8 +327,8 @@ def comments_table():
 
     com_list = []
     db = client["Youtube_data"]
-    coll1 = db["comment_details"]
-    for com_data in coll1.find({}, {"_id": 0, "comment information": 1}):
+    coll3 = db["comment_details"]
+    for com_data in coll3.find({}, {"_id": 0, "comment information": 1}):
         for i in range(len(com_data["comment information"])):
             com_list.append(com_data["comment information"][i])
     dfm2 = pd.DataFrame(com_list)
@@ -359,7 +356,7 @@ def comments_table():
 
 
 def tables():
-    channels_tables()
+    channels_table()
     videos_table()
     comments_table()
 
@@ -383,8 +380,8 @@ def show_channels_tables():
 def show_videos_table():
     vi_list = []
     db = client["Youtube_data"]
-    coll1 = db["video_details"]
-    for vi_data in coll1.find({}, {"_id": 0, "video information": 1}):
+    coll2 = db["video_details"]
+    for vi_data in coll2.find({}, {"_id": 0, "video information": 1}):
         for i in range(len(vi_data["video information"])):
             vi_list.append(vi_data["video information"][i])
     dfm1 = st.dataframe(vi_list)
@@ -395,8 +392,8 @@ def show_videos_table():
 def show_comments_table():
     com_list = []
     db = client["Youtube_data"]
-    coll1 = db["comment_details"]
-    for com_data in coll1.find({}, {"_id": 0, "comment information": 1}):
+    coll3 = db["comment_details"]
+    for com_data in coll3.find({}, {"_id": 0, "comment information": 1}):
         for i in range(len(com_data["comment information"])):
             com_list.append(com_data["comment information"][i])
     dfm2 = st.dataframe(com_list)
@@ -406,19 +403,41 @@ def show_comments_table():
 
 # Streamlit coding:
 
-st.title(":red[YOUTUBE DATA HAVERSTING]")
 
-st.caption("channels details")
+# st.title(":red[YOUTUBE DATA HAVERSTING AND WAREHOUSING]")
 
-Channel_id = st.text_input("Enter the Youtube channel ID")
+st.header("Data collection zone and Store data to MongoDB and to SQL")
 
 
-if st.button("collect and store data in MongoDB"):
+# SETTING PAGE CONFIGURATIONS
+
+# CREATING OPTION MENU
+with st.sidebar:
+    st.caption = option_menu(None, ["About","Youtube Data Harvesting and Warehousing","Created by *Parthiban Vasudevan!*"],
+                          icons=["exclamation-circle","toggles","card-text"],
+                          default_index=0,
+                          orientation="vertical",
+                          styles={"nav-link": {"font-size": "15px", "text-align": "centre", "margin": "0px",
+                                               "--hover-color": "#C80101"},
+                                  "icon": {"font-size": "15px"},
+                                  "container" : {"max-width": "2000px"},
+                                  "nav-link-selected": {"background-color": "#C80101"}})
+
+
+channel_id = st.text_input("Enter the channel ID")
+
+if  st.button("Extract Data"):
+    ch_details = get_channel_details(channel_id)
+    dfa = st.dataframe(ch_details)
+
+
+if st.button("collect and store data"):
     ch_ids = []
     db = client["Youtube_data"]
     coll1 = db["channel_details"]
     for ch_data in coll1.find({}, {"_id": 0, "channel_information": 1}):
         ch_ids.append(ch_data["channel_information"]["channel_id"])
+    # df = st.dataframe(ch_ids)
 
     if channel_id in ch_ids:
         st.success("Channel Details of the given channel id already exists")
@@ -426,10 +445,75 @@ if st.button("collect and store data in MongoDB"):
     else:
         insert = channel_details(channel_id)
         st.success(insert)
+        dfam = st.dataframe(get_channel_details(channel_id))
+        # dfam = st.dataframe(ch_ids)
+        st.write("Channel details successfully updated in MongoDB")
 
-if st.button("Migrate to sql"):
-    Table = tables()
-    st.success(Table)
+# channel_id = st.text_input("Enter the channel ID to migrate to SQL")
+
+
+# if st.button("Migrate to sql"):
+
+if st.button('Migrate to Sql') and st.text_input("Enter the channel ID to migrate to SQL") != "":
+    mydb = psycopg2.connect(host="localhost",
+                            user="postgres",
+                            password="pvasudwvan",
+                            database="youtube_data",
+                            port="5432")
+    cursor = mydb.cursor()
+
+    drop_query = '''drop table if exists channels'''
+    cursor.execute(drop_query)
+    mydb.commit()
+
+    create_query = '''create table if not exists channels(channel_id varchar(80) primary key,
+                                                            channel_name varchar(100),
+                                                            channel_description text, 
+                                                            channel_pat varchar(80),
+                                                            channel_playlist varchar(80),
+                                                            channel_subscribercount bigint,
+                                                            channel_videocount int,
+                                                            channel_viewCount bigint)'''
+    cursor.execute(create_query)
+    mydb.commit()
+
+    ch_list = []
+    db = client["Youtube_data"]
+    coll1 = db["channel_details"]
+    for ch_data in coll1.find({}, {"_id": 0, "channel_information": 1}):
+        ch_list.append(ch_data["channel_information"])
+    df = pd.DataFrame(ch_list)
+
+    for index, row in df.iterrows():
+        insert_query = '''insert into channels(channel_id,
+                                             channel_name,   
+                                             channel_description,
+                                             channel_pat,
+                                             channel_playlist,
+                                             channel_subscribercount,
+                                             channel_videocount,
+                                             channel_viewCount)
+
+                                             values(%s,%s,%s,%s,%s,%s,%s,%s)'''
+
+        values = (row['channel_id'],
+                  row['channel_name'],
+                  row['channel_des'],
+                  row['p@t'],
+                  row['playlist'],
+                  row['subcount'],
+                  row['vc'],
+                  row['viewCount'])
+
+        cursor.execute(insert_query, values)
+        mydb.commit()
+
+    # insert = channels_table()
+    # st.success(insert)
+    # # st.write(display)
+    # st.write("Channel data successfully updated to Mysql")
+
+st.header('TABLE VIEW')
 
 
 show_table = st.radio("SELECT THE TABLE FOR VIEW", ("CHANNELS", "VIDEOS", "COMMENTS"))
@@ -444,6 +528,10 @@ elif show_table == "COMMENTS":
     show_comments_table()
 
 # SQL connection:
+
+st.header('Channel Data Analysis zone')
+st.write ('''(Note:- This zone **Analysis of a collection of channel data** depends on your question selection and gives a table format output.)''')
+
 
 
 mydb = psycopg2.connect(host="localhost",
