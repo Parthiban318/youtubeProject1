@@ -6,10 +6,8 @@ import psycopg2
 import pymongo
 import pandas as pd
 import streamlit as st
-from plotly.graph_objs.box import selected
-import plotly.express as px
 from streamlit_option_menu import option_menu
-from PIL import Image
+
 
 # API Functions:
 
