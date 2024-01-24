@@ -166,10 +166,9 @@ def get_comment_info(video_ids):
         pass
     return comment_data
 
-# Mongodb Connection:
+comment_details = get_comment_info(video_ids)
 
-
-
+comment_data = pd.DataFrame(comment_details)
 
 
 # Mongodb functions:
@@ -401,12 +400,8 @@ def show_comments_table():
 # Streamlit coding:
 
 
-# st.title(":red[YOUTUBE DATA HAVERSTING AND WAREHOUSING]")
-
 st.header("Data collection zone and Store data to MongoDB and to SQL")
 
-
-# SETTING PAGE CONFIGURATIONS
 
 # CREATING OPTION MENU
 with st.sidebar:
@@ -424,17 +419,20 @@ with st.sidebar:
 channel_id = st.text_input("Enter the channel ID")
 
 if  st.button("Extract Data"):
+    st.write('''(Note:- This zone **extracting of channel data from YouTube** .)''')
     ch_details = get_channel_details(channel_id)
     dfa = st.dataframe(ch_details)
 
 
+
 if st.button("collect and store data"):
+    st.write('''(Note:- This zone **extracting data from Youtube and inserting data into MongoDB** .)''')
     ch_ids = []
     db = client["Youtube_data"]
     coll1 = db["channel_details"]
     for ch_data in coll1.find({}, {"_id": 0, "channel_information": 1}):
         ch_ids.append(ch_data["channel_information"]["channel_id"])
-    # df = st.dataframe(ch_ids)
+    
 
     if channel_id in ch_ids:
         st.success("Channel Details of the given channel id already exists")
@@ -443,15 +441,12 @@ if st.button("collect and store data"):
         insert = channel_details(channel_id)
         st.success(insert)
         dfam = st.dataframe(get_channel_details(channel_id))
-        # dfam = st.dataframe(ch_ids)
         st.write("Channel details successfully updated in MongoDB")
 
-# channel_id = st.text_input("Enter the channel ID to migrate to SQL")
+if st.button('Migrate to Sql'):
+    st.write('''(Note:- This zone **extracting data from MongoDB and inserting table into SQL** .)''')
+    st.success("Channel details successfully updated in SQL")
 
-
-# if st.button("Migrate to sql"):
-
-if st.button('Migrate to Sql') and st.text_input("Enter the channel ID to migrate to SQL") != "":
     mydb = psycopg2.connect(host="localhost",
                             user="postgres",
                             password="pvasudwvan",
@@ -490,7 +485,7 @@ if st.button('Migrate to Sql') and st.text_input("Enter the channel ID to migrat
                                              channel_subscribercount,
                                              channel_videocount,
                                              channel_viewCount)
-
+    
                                              values(%s,%s,%s,%s,%s,%s,%s,%s)'''
 
         values = (row['channel_id'],
@@ -505,11 +500,7 @@ if st.button('Migrate to Sql') and st.text_input("Enter the channel ID to migrat
         cursor.execute(insert_query, values)
         mydb.commit()
 
-    # insert = channels_table()
-    # st.success(insert)
-    # # st.write(display)
-    # st.write("Channel data successfully updated to Mysql")
-
+    
 st.header('TABLE VIEW')
 
 
